@@ -37,7 +37,7 @@ define(['jquery', 'three', 'elements/Class'],
             
         // create the geometry and material for the mesh
         this.geometry = new THREE.BoxGeometry(desc.width, desc.height, desc.depth);
-        this.material = new THREE.MeshBasicMaterial({color: 0xffffff});
+        this.material = new THREE.MeshPhongMaterial({color: 0xffffff});
 
         // create the cube
         this.el = new THREE.Mesh(this.geometry, this.material);
@@ -52,6 +52,28 @@ define(['jquery', 'three', 'elements/Class'],
     // Cube inherits from Element3D
     Cube.prototype = new Element3D;
 
+    // create Sphere class and inherit from Element3D
+    function Sphere (position, radius, widthSegments, heightSegments) {
+
+        console.log('Sphere created');
+            
+        // create the geometry and material for the mesh
+        this.geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+        this.material = new THREE.MeshPhongMaterial({color: 0xffff00});
+
+        // create the cube
+        this.el = new THREE.Mesh(this.geometry, this.material);
+
+        // store position
+        this.position = position;
+
+        // set position
+        this.el.position.set(this.position.x, this.position.y, this.position.z);
+    }
+
+    // Cube inherits from Element3D
+    Sphere.prototype = new Element3D;
+
     return {
         
         descriptor : function () {
@@ -59,6 +81,9 @@ define(['jquery', 'three', 'elements/Class'],
         },
         createCube : function (desc) {
             return new Cube(desc);
+        },
+        createSphere : function (radius, widthSegments, heightSegments) {
+            return new Sphere(radius, widthSegments, heightSegments);
         }
     };
 

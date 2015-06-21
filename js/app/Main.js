@@ -8,15 +8,22 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
             CUBE : 'cube',
             SPHERE : 'sphere'
         }, // types of 3D element
+        CONVERSIONS = {
+            DEGREES_IN_RADIAN : 57.3,
+            DEGREES_IN_CIRCLE : 360,
+            RADIANS_IN_CIRCLE : 360 / 57.3
+        },
+
         elContent, // reference to main content
         elWindow, // reference window object
         width, // width to window
         height, // height to window
         scene, // threejs scene
         camera, // threejs camera
+        light, // threejs light
         projector, // threejs projector
         renderer, // threejs renderer
-        elementType = TYPES.CUBE, // element type i.e. cube, sphere
+        elementType = TYPES.SPHERE, // element type i.e. cube, sphere
         elements = []; // array to store threejs cubes
 
     function init () {
@@ -51,6 +58,11 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
 
         // add the camera
         scene.add(camera);
+
+        light = new THREE.AmbientLight(0xffffff);
+
+        // add the light
+        scene.add(light);
         
         // start rendering
         render();
@@ -58,21 +70,26 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
 
     function onDocumentMouseDown (e) {
 
-        var vector,
-            dir,
-            distance,
-            position;
-
         // prevent default action
         e.preventDefault();
+
+        // add a new element at the point of click
+        createElements(e.clientX, e.clientY, 100);
+    }
+
+    function getPosition (x, y) {
+
+        var vector,
+            dir,
+            distance;
 
         // create 3D vector
         vector = new THREE.Vector3();
 
         // set vector values
         vector.set(
-            (e.clientX / width) * 2 - 1,
-            - (e.clientY / height) * 2 + 1,
+            (x / width) * 2 - 1,
+            - (y / height) * 2 + 1,
             0.5);
 
         // get ray pointing in right direction
@@ -82,20 +99,54 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
 
         distance = -camera.position.z / dir.z;
 
-        position = camera.position.clone().add(dir.multiplyScalar(distance));
-
-        // add a new element at the point of click
-        addElement(position);
+        return camera.position.clone().add(dir.multiplyScalar(distance));
     }
 
-    function addElement (position) {
+    function createElements (centre_x, centre_y, radius) {
+
+        var i = 0,
+            num_elements = 8,
+            x,
+            y,
+            element,
+            group = new THREE.Object3D(),
+            angle,
+            position;
+
+        for (i; i < num_elements; i++) {
+
+            angle = ((CONVERSIONS.DEGREES_IN_CIRCLE / num_elements) / CONVERSIONS.DEGREES_IN_RADIAN) * i;
+
+            x = radius * Math.cos(angle) + centre_x;
+            y = radius * Math.sin(angle) + centre_y;
+
+            position = getPosition(x, y);
+
+            element = createElement(position);
+
+            // add a new element at the point of click
+            group.add(element.getEl());
+        }
+
+        group.position.set(0, 0, (Math.random() * 100));
+
+        group.rotation.x = Math.random() * CONVERSIONS.RADIANS_IN_CIRCLE;
+
+        // store the group in array for reference
+        elements.push(group);
+
+        // finally add the threejs group to the scene
+        scene.add(group);
+    }
+
+    function createElement (position) {
 
         var element,
             desc = Element3D.descriptor();
 
         // set descriptor values
-        desc.width = 50;
-        desc.height = 50;
+        desc.width = 10;
+        desc.height = 10;
         desc.depth = 50;
         desc.colour = 0xffffff;
         desc.position = position;
@@ -111,14 +162,12 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
 
             case TYPES.SPHERE :
 
+                element = Element3D.createSphere(position, 10, 24, 24)
+
                 break;
         }
 
-        // store the cube in array for reference
-        elements.push(element);
-
-        // finally add the threejs cube to the scene
-        scene.add(element.getEl());
+        return element;
     }
 
     function render() {
