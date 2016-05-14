@@ -1,6 +1,6 @@
 // define dependent files
-define(['jquery', 'three', 'elements/Class'], 
-    function($, threejs, Class) {
+define(['jquery', 'three'], 
+    function($, threejs) {
 
     'use strict';
 
@@ -32,8 +32,6 @@ define(['jquery', 'three', 'elements/Class'],
 
     // create Cube class and inherit from Element3D
     function Cube (desc) {
-
-        console.log('Cube created');
             
         // create the geometry and material for the mesh
         this.geometry = new THREE.BoxGeometry(desc.width, desc.height, desc.depth);
@@ -54,12 +52,10 @@ define(['jquery', 'three', 'elements/Class'],
 
     // create Sphere class and inherit from Element3D
     function Sphere (position, radius, widthSegments, heightSegments) {
-
-        console.log('Sphere created');
             
         // create the geometry and material for the mesh
         this.geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
-        this.material = new THREE.MeshPhongMaterial({color: 0xffff00});
+        this.material = new THREE.MeshPhongMaterial({color: 0xffffff});
 
         // create the cube
         this.el = new THREE.Mesh(this.geometry, this.material);

@@ -31,6 +31,9 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
         // cache DOM references for speed
         elContent = $('#content');
         elWindow = $(window);
+        
+        // hide initialising message
+        elContent.find('.initialising').addClass('remove');
 
         // cache the content size
         width = elContent.width();
@@ -50,7 +53,7 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
         $(elContent).on('mousedown', onDocumentMouseDown);
 
         // add a camera
-        camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+        camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 
         // set camera position
         camera.position.y = 0;
@@ -59,7 +62,9 @@ define(['jquery', 'three', 'utilities/Events', 'utilities/Broadcast', 'elements/
         // add the camera
         scene.add(camera);
 
-        light = new THREE.AmbientLight(0xffffff);
+        light = new THREE.DirectionalLight(0xffffff, 0.75);
+        
+        light.position.set(2, 1, 5);
 
         // add the light
         scene.add(light);
